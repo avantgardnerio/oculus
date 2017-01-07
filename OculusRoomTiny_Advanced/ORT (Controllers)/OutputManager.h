@@ -20,7 +20,7 @@
 class OUTPUTMANAGER
 {
     public:
-        OUTPUTMANAGER();
+        OUTPUTMANAGER(ID3D11Texture2D            * m_Tex);
         ~OUTPUTMANAGER();
         DUPL_RETURN InitOutput(HWND Window, INT SingleOutput, _Out_ UINT* OutCount, _Out_ RECT* DeskBounds);
         DUPL_RETURN UpdateApplicationWindow(_In_ PTR_INFO* PointerInfo, _Inout_ bool* Occluded);
@@ -41,7 +41,8 @@ class OUTPUTMANAGER
         DUPL_RETURN ResizeSwapChain();
 
     // Vars
-        IDXGISwapChain1* m_SwapChain;
+        //IDXGISwapChain1* m_SwapChain;
+		ID3D11Texture2D            * m_Tex;
         ID3D11Device* m_Device;
         IDXGIFactory2* m_Factory;
         ID3D11DeviceContext* m_DeviceContext;

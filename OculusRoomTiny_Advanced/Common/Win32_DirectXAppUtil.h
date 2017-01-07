@@ -505,10 +505,11 @@ struct Material
             "          out float4 oPosition : SV_Position, out float4 oColor: COLOR0, out float2 oTexCoord : TEXCOORD0)"
             "{   oPosition = mul(ProjView, Position); oTexCoord = TexCoord; "
             "    oColor = MasterCol * Color; }"; 
-        char* defaultPixelShaderSrc =
-            "Texture2D Texture   : register(t0); SamplerState Linear : register(s0); "
-            "float4 main(in float4 Position : SV_Position, in float4 Color: COLOR0, in float2 TexCoord : TEXCOORD0) : SV_Target"
-            "{   float4 TexCol = Texture.Sample(Linear, TexCoord); "
+		char* defaultPixelShaderSrc =
+			"Texture2D Texture   : register(t0); SamplerState Linear : register(s0); "
+			"float4 main(in float4 Position : SV_Position, in float4 Color: COLOR0, in float2 TexCoord : TEXCOORD0) : SV_Target"
+			"{   float4 TexCol = Texture.Sample(Linear, TexCoord); "
+			"	TexCol.a = 1.0;"
             "    if (TexCol.a==0) clip(-1); " // If alpha = 0, don't draw
             "    return(Color * TexCol); }";
 
@@ -756,7 +757,8 @@ struct Model
         DIRECTX.Context->PSSetSamplers(0, 1, &Fill->SamplerState);
         DIRECTX.Context->RSSetState(Fill->Rasterizer);
         DIRECTX.Context->OMSetDepthStencilState(Fill->DepthState, 0);
-        DIRECTX.Context->OMSetBlendState(Fill->BlendState, NULL, 0xffffffff);
+		float blend = 0.0f;
+        DIRECTX.Context->OMSetBlendState(Fill->BlendState, &blend, 0xffffffff);
         DIRECTX.Context->PSSetShaderResources(0, 1, &Fill->Tex->TexSv);
 
         DIRECTX.Context->DrawIndexed((UINT)NumIndices, 0, 0);

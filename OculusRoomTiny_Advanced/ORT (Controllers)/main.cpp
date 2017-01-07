@@ -140,7 +140,7 @@ struct Controllers : BasicVR
 	    Model * controller = new Model(&cube, XMFLOAT3(0, 0, 0), XMFLOAT4(0, 0, 0, 1), new Material(new Texture(false, 256, 256, Texture::AUTO_CEILING)));
 	
 		InitCap();
-		Texture* tex = new Texture(ScreenX, ScreenY, false, 4);
+		Texture* tex = new Texture(ScreenX, ScreenY, true);
 		TriangleSet wall;
 		//wall.AddSolidColorBox(1.0f, -1.0f, 1.0f, -0.05f, 0.05f, -0.05f, 0xff404040);
 		float x1 = -3840.0f / 2160.0f / 2,
@@ -165,9 +165,9 @@ struct Controllers : BasicVR
 		Model * thing = new Model(&wall, XMFLOAT3(-2.5, 1.0, 0), XMFLOAT4(0, 0, 0, 1), new Material(tex));
 
 		// Main loop
-		int frame = 0;
+		//int frame = 0;
 		THREADMANAGER ThreadMgr;
-		OUTPUTMANAGER OutMgr;
+		OUTPUTMANAGER OutMgr(tex->Tex);
 		RECT DeskBounds;
 		UINT OutputCount;
 		int SingleOutput = -1;
@@ -288,9 +288,9 @@ struct Controllers : BasicVR
 				controller->Render(&viewProj, 1, inputState.Buttons & ovrTouch_X ? 1.0f : 0.0f,
 					inputState.Buttons & ovrTouch_Y ? 1.0f : 0.0f, 1, true);
 
-				if (frame++ % 1000 == 0)
-					ScreenCap(tex);
-				thing->Render(&viewProj, 0.5, 0.5f, 0.5f, 1.0f, true);
+				//if (frame++ % 1000 == 0)
+					//ScreenCap(tex);
+				thing->Render(&viewProj, 1.0f, 1.0f, 1.0f, 1.0f, true);
 			}
 
 			Layer[0]->PrepareLayerHeader();

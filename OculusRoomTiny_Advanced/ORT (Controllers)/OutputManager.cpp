@@ -11,7 +11,7 @@ using namespace DirectX;
 //
 // Constructor NULLs out all pointers & sets appropriate var vals
 //
-OUTPUTMANAGER::OUTPUTMANAGER() : m_SwapChain(nullptr),
+OUTPUTMANAGER::OUTPUTMANAGER(ID3D11Texture2D            * Tex) /*: m_SwapChain(nullptr),
                                  m_Device(nullptr),
                                  m_Factory(nullptr),
                                  m_DeviceContext(nullptr),
@@ -25,8 +25,23 @@ OUTPUTMANAGER::OUTPUTMANAGER() : m_SwapChain(nullptr),
                                  m_KeyMutex(nullptr),
                                  m_WindowHandle(nullptr),
                                  m_NeedsResize(false),
-                                 m_OcclusionCookie(0)
+                                 m_OcclusionCookie(0)*/
 {
+	m_Tex = Tex;
+	m_Device = nullptr;
+	m_Factory=nullptr;
+	m_DeviceContext=nullptr;
+	m_RTV=nullptr;
+	m_SamplerLinear=nullptr;
+	m_BlendState=nullptr;
+	m_VertexShader=nullptr;
+	m_PixelShader=nullptr;
+	m_InputLayout=nullptr;
+	m_SharedSurf=nullptr;
+	m_KeyMutex=nullptr;
+	m_WindowHandle =nullptr;
+	m_NeedsResize = false;
+	m_OcclusionCookie = 0;
 }
 
 //
@@ -129,10 +144,12 @@ DUPL_RETURN OUTPUTMANAGER::InitOutput(HWND Window, INT SingleOutput, _Out_ UINT*
 	/*
     RECT WindowRect;
     GetClientRect(m_WindowHandle, &WindowRect);
-    UINT Width = WindowRect.right - WindowRect.left;
-    UINT Height = WindowRect.bottom - WindowRect.top;
+	*/
+    UINT Width = 3840;
+    UINT Height = 2160;
 
     // Create swapchain for window
+	/*
     DXGI_SWAP_CHAIN_DESC1 SwapChainDesc;
     RtlZeroMemory(&SwapChainDesc, sizeof(SwapChainDesc));
 
@@ -149,8 +166,10 @@ DUPL_RETURN OUTPUTMANAGER::InitOutput(HWND Window, INT SingleOutput, _Out_ UINT*
     {
         return ProcessFailure(m_Device, L"Failed to create window swapchain", L"Error", hr, SystemTransitionsExpectedErrors);
     }
+	*/
 
     // Disable the ALT-ENTER shortcut for entering full-screen mode
+	/*
     hr = m_Factory->MakeWindowAssociation(Window, DXGI_MWA_NO_ALT_ENTER);
     if (FAILED(hr))
     {
@@ -166,14 +185,14 @@ DUPL_RETURN OUTPUTMANAGER::InitOutput(HWND Window, INT SingleOutput, _Out_ UINT*
     }
 
     // Make new render target view
-    /*Return = MakeRTV();
+    Return = MakeRTV();
     if (Return != DUPL_RETURN_SUCCESS)
     {
         return Return;
-    }*/
+    }
 
     // Set view port
-    //SetViewPort(Width, Height);
+    SetViewPort(Width, Height);
 
     // Create the sample state
     D3D11_SAMPLER_DESC SampDesc;
@@ -952,16 +971,20 @@ DUPL_RETURN OUTPUTMANAGER::InitShaders()
 DUPL_RETURN OUTPUTMANAGER::MakeRTV()
 {
     // Get backbuffer
-    ID3D11Texture2D* BackBuffer = nullptr;
-    HRESULT hr = m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&BackBuffer));
+    ID3D11Texture2D* BackBuffer = m_Tex; // TODO: Point at our texture
+	HRESULT hr;
+
+	/*
+    hr = m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&BackBuffer));
     if (FAILED(hr))
     {
         return ProcessFailure(m_Device, L"Failed to get backbuffer for making render target view in OUTPUTMANAGER", L"Error", hr, SystemTransitionsExpectedErrors);
     }
+	*/
 
     // Create a render target view
     hr = m_Device->CreateRenderTargetView(BackBuffer, nullptr, &m_RTV);
-    BackBuffer->Release();
+    //BackBuffer->Release();
     if (FAILED(hr))
     {
         return ProcessFailure(m_Device, L"Failed to create render target view in OUTPUTMANAGER", L"Error", hr, SystemTransitionsExpectedErrors);
@@ -1005,6 +1028,7 @@ DUPL_RETURN OUTPUTMANAGER::ResizeSwapChain()
     UINT Height = WindowRect.bottom - WindowRect.top;
 
     // Resize swapchain
+	/*
     DXGI_SWAP_CHAIN_DESC SwapChainDesc;
     m_SwapChain->GetDesc(&SwapChainDesc);
     HRESULT hr = m_SwapChain->ResizeBuffers(SwapChainDesc.BufferCount, Width, Height, SwapChainDesc.BufferDesc.Format, SwapChainDesc.Flags);
@@ -1012,6 +1036,7 @@ DUPL_RETURN OUTPUTMANAGER::ResizeSwapChain()
     {
         return ProcessFailure(m_Device, L"Failed to resize swapchain buffers in OUTPUTMANAGER", L"Error", hr, SystemTransitionsExpectedErrors);
     }
+	*/
 
     // Make new render target view
     DUPL_RETURN Ret = MakeRTV();
@@ -1079,11 +1104,13 @@ void OUTPUTMANAGER::CleanRefs()
         m_Device = nullptr;
     }
 
+	/*
     if (m_SwapChain)
     {
         m_SwapChain->Release();
         m_SwapChain = nullptr;
     }
+	*/
 
     if (m_SharedSurf)
     {

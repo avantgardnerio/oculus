@@ -15,7 +15,7 @@
 //
 // Globals
 //
-OUTPUTMANAGER OutMgr;
+//OUTPUTMANAGER OutMgr;
 
 // Below are lists of errors expect from Dxgi API calls when a transition event like mode change, PnpStop, PnpStart
 // desktop switch, TDR or session disconnect/reconnect. In all these cases we want the application to clean up the threads that process
@@ -239,6 +239,7 @@ int WINAPI WinMain2(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     UpdateWindow(WindowHandle);
 
     THREADMANAGER ThreadMgr;
+	OUTPUTMANAGER OutMgr(nullptr);
     RECT DeskBounds;
     UINT OutputCount;
 
@@ -418,7 +419,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case WM_SIZE:
         {
             // Tell output manager that window size has changed
-            OutMgr.WindowResize();
+            //OutMgr.WindowResize();
             break;
         }
         default:
