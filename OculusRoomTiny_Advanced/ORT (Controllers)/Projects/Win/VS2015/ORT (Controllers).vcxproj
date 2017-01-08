@@ -92,6 +92,8 @@
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(ProjectDir)..\..\..\Obj\Windows\$(Platform)\$(Configuration)\VS2015\</IntDir>
     <OutDir>$(ProjectDir)..\..\..\Bin\Windows\$(Platform)\$(Configuration)\VS2015\</OutDir>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(IncludePath);$(DXSDK_DIR)Include;$(KINECTSDK10_DIR)\inc;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin;C:\Program Files (x86)\Windows Kits\8.1\bin\x86;C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\tools;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\ide;C:\Program Files (x86)\HTML Help Workshop;C:\Program Files (x86)\MSBuild\14.0\bin\;C:\Windows\Microsoft.NET\Framework\v4.0.30319\;C:\Windows\SysWow64;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\CommonExtensions\Microsoft\TeamFoundation\Team Explorer\NativeBinaries\x86;C:\Program Files\Oculus\Support\oculus-runtime;C:\ProgramData\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Users\Brent\.dnx\bin;C:\Program Files\Microsoft DNX\Dnvm\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files (x86)\GtkSharp\2.12\bin;C:\Program Files (x86)\Windows Kits\8.1\Windows Performance Toolkit\;C:\Program Files\CMake\bin;C:\Program Files\Git\cmd;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Users\Brent\AppData\Local\Microsoft\WindowsApps;C:\Users\Brent\AppData\Local\atom\bin;c:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Users\Brent\Downloads\ovr_2\OculusSDK\Samples\Projects\Windows\VS2015\Debug;$(LibraryPath);$(DXSDK_DIR)Lib\x86;$(KINECTSDK10_DIR)\lib\x86</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -243,7 +245,7 @@
     </Manifest>
     <Link>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-      <AdditionalDependencies>$(OVRSDKROOT)LibOVR/Lib/Windows/$(Platform)/$(Configuration)/VS2015/LibOVR.lib;d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(OVRSDKROOT)LibOVR/Lib/Windows/$(Platform)/$(Configuration)/VS2015/LibOVR.lib;d3d11.lib;dxgi.lib;DepthWithColor-D3D.lib;Kinect10.lib;d3dcompiler.lib;winmm.lib;comctl32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

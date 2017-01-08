@@ -363,7 +363,7 @@ struct BasicVR
             return retryCreate;
 
         HmdDesc = ovr_GetHmdDesc(Session);
-
+		
         unsigned int trackerCount = std::max<unsigned int>(1, ovr_GetTrackerCount(Session)); // Make sure there's always at least one.
         for (unsigned int i = 0; i < trackerCount; ++i)
             TrackerDescArray.push_back(ovr_GetTrackerDesc(Session, i));
@@ -474,6 +474,8 @@ struct BasicVR
             // It no longer seems to find the preset user height.
             MainCam->Pos = XMVectorSet(XMVectorGetX(MainCam->Pos), ovr_GetFloat(Session, OVR_KEY_EYE_HEIGHT, 0), XMVectorGetZ(MainCam->Pos), 0);
         }
+
+		
 
         // Animate the cube
         static float cubeClock = 0;

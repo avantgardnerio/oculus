@@ -28,7 +28,9 @@ limitations under the License.
 #include "DuplicationManager.h"
 #include "OutputManager.h"
 #include "ThreadManager.h"
-
+#include "..\..\DepthWithColor-D3D\DepthWithColor-D3D.h"
+#pragma comment(lib,"user32.lib") 
+#pragma comment(lib,"gdi32.lib") 
 struct Controllers : BasicVR
 {
     Controllers(HINSTANCE hinst) : BasicVR(hinst, L"Controllers") {}
@@ -102,13 +104,23 @@ struct Controllers : BasicVR
 	}
 
     void MainLoop()
-    {
+    {		
+
 	    Layer[0] = new VRLayer(Session);
 
 		// Synchronization
 		HANDLE UnexpectedErrorEvent = nullptr;
 		HANDLE ExpectedErrorEvent = nullptr;
 		HANDLE TerminateThreadsEvent = nullptr;
+
+		CDepthWithColorD3D g_Application(DIRECTX.Device, DIRECTX.Context);
+
+		if (FAILED(g_Application.CreateFirstConnected()))
+		{
+			ProcessFailure(NULL, L"No ready Kinect found!", L"Error", MB_ICONHAND | MB_OK);
+			return;
+		}
+		g_Application.InitDevice();
 
 		// Event used by the threads to signal an unexpected error and we want to quit the app
 		UnexpectedErrorEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
@@ -177,6 +189,10 @@ struct Controllers : BasicVR
 		// Message loop (attempts to update screen when no other messages to process)
 		MSG msg = { 0 };
 		bool FirstTime = true;
+
+		static float Yaw = -2;
+		MainCam->Rot = XMQuaternionRotationRollPitchYaw(0, Yaw, 0);
+
 		while (WM_QUIT != msg.message)
 		{
 			DUPL_RETURN Ret = DUPL_RETURN_SUCCESS;
@@ -262,27 +278,47 @@ struct Controllers : BasicVR
 					break;
 				}
 			}
-
+			
 			// We don't allow yaw change for now, as this sample is too simple to cater for it.
-			ActionFromInput(1.0f, false);
+			ActionFromInput(1.0f, false, true);
 			ovrTrackingState hmdState = Layer[0]->GetEyePoses();
 
 			//Write position and orientation into controller model.
-			controller->Pos = XMFLOAT3(XMVectorGetX(MainCam->Pos) + hmdState.HandPoses[ovrHand_Left].ThePose.Position.x,
+			controller->Pos = XMFLOAT3(XMVectorGetX(MainCam->Pos) + hmdState.HandPoses[ovrHand_Left].ThePose.Position.x * 20,
 				XMVectorGetY(MainCam->Pos) + hmdState.HandPoses[ovrHand_Left].ThePose.Position.y,
 				XMVectorGetZ(MainCam->Pos) + hmdState.HandPoses[ovrHand_Left].ThePose.Position.z);
 			controller->Rot = XMFLOAT4(hmdState.HandPoses[ovrHand_Left].ThePose.Orientation.x,
 				hmdState.HandPoses[ovrHand_Left].ThePose.Orientation.y,
 				hmdState.HandPoses[ovrHand_Left].ThePose.Orientation.z,
 				hmdState.HandPoses[ovrHand_Left].ThePose.Orientation.w);
-
+				
 			//Button presses are modifying the colour of the controller model below
 			ovrInputState inputState;
-			ovr_GetInputState(Session, ovrControllerType_Touch, &inputState);
+			ovr_GetInputState(Session, ovrControllerType_XBox, &inputState);
+			
+			if (inputState.Thumbstick[1].x < -.5)   MainCam->Rot = XMQuaternionRotationRollPitchYaw(0, Yaw += 0.02f, 0);
+			if (inputState.Thumbstick[1].x > .5)    MainCam->Rot = XMQuaternionRotationRollPitchYaw(0, Yaw -= 0.02f, 0);
 
+
+			XMVECTOR forward = XMVector3Rotate(XMVectorSet(0, 0, -0.05f, 0), MainCam->Rot);
+			XMVECTOR right = XMVector3Rotate(XMVectorSet(0.05f, 0, 0, 0), MainCam->Rot);
+			XMVECTOR up = XMVector3Rotate(XMVectorSet(0, 0.05f, 0, 0), MainCam->Rot);
+			//XMVECTOR forward = XMVectorSet(0, 0, -0.05f, 0);
+			//XMVECTOR right = XMVectorSet(0.05f, 0, 0, 0);
+
+			if (inputState.Thumbstick[1].y > -.5)   MainCam->Pos = XMVectorAdd(MainCam->Pos, up);
+			if (inputState.Thumbstick[1].y < .5)    MainCam->Pos = XMVectorSubtract(MainCam->Pos, up);
+			if (inputState.Thumbstick->y > .5)	  MainCam->Pos = XMVectorAdd(MainCam->Pos, forward);
+			if (inputState.Thumbstick->y < -.5)    MainCam->Pos = XMVectorSubtract(MainCam->Pos, forward);
+			if (inputState.Thumbstick->x > -.5)    MainCam->Pos = XMVectorAdd(MainCam->Pos, right);
+			if (inputState.Thumbstick->x < .5)    MainCam->Pos = XMVectorSubtract(MainCam->Pos, right);
+
+			//ovr_GetInputState(Session, ovrControllerType_Touch, &inputState);
 			for (int eye = 0; eye < 2; ++eye)
 			{
 				XMMATRIX viewProj = Layer[0]->RenderSceneToEyeBuffer(MainCam, RoomScene, eye);
+
+				g_Application.Render(DIRECTX.Context, viewProj);
 
 				// Render the controller model
 				controller->Render(&viewProj, 1, inputState.Buttons & ovrTouch_X ? 1.0f : 0.0f,
